@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/widgets/image_card.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -9,17 +10,18 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: Center(child: Text("Wallpapers"))
       ),
-      body: Center(
-          child: ClipRRect(
-            borderRadius: BorderRadiusGeometry.all(Radius.circular(20)),
-            child: Image.network(
-              "https://images.pexels.com/photos/34385548/pexels-photo-34385548.jpeg",
-              width: 400,
-              height: 600,
-              fit: BoxFit.cover,
-              ),
-          ),
-        ),
+      body: GridView.builder(
+        itemCount: 1,
+        padding: EdgeInsets.all(20),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 15,
+          mainAxisSpacing: 15,
+          ), 
+        itemBuilder: (context, index) {
+          return ImageCard();
+        },
+        )
     );
   }
 }
