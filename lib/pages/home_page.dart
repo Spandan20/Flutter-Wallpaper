@@ -1,8 +1,6 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/services/api_service.dart';
 import 'package:flutter_application_1/widgets/image_card.dart';
-import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,36 +11,26 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late Future<List<dynamic>> _futurePhotos;
+  final ScrollController _scrollController = ScrollController();
 
-  Future<List<dynamic>> fetchPhotos() async {
-    const apiKey = String.fromEnvironment("API_KEY");
-    if (apiKey.isEmpty) {
-      throw Exception("API_KEY not found");
-    }
-    const uri = "https://api.pexels.com/v1/search?query=people";
-    try {
-      final response = await http.get(
-        Uri.parse(uri),
-        headers: {
-          "Authorization": apiKey
-        }
-      );
-      if (response.statusCode == 200) {
-        final Map<String,dynamic> data = jsonDecode(response.body);
-        return data['photos'];
-      }
-      else {
-        throw Exception("Error loading photos: ${response.statusCode}");
-      }
-    } catch(e) {
-      throw Exception("Error: $e");
-    }
-  } 
+  ApiService apiService = ApiService(); 
 
   @override
   void initState() {
     super.initState();
-    _futurePhotos = fetchPhotos();
+    var page = 1;
+    _futurePhotos = apiService.fetchPhotos(page: page);
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+        page++;
+        Future<List<dynamic>> newPhotos =  apiService.fetchPhotos(page: page);
+        setState(() {
+          _futurePhotos = newPhotos;
+        });
+
+      }
+    });
   }
 
   @override
@@ -68,6 +56,7 @@ class _HomePageState extends State<HomePage> {
             }
           
             return GridView.builder(
+              controller: _scrollController,
               itemCount: photoList.length,
               padding: EdgeInsets.all(20),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
