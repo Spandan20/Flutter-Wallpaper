@@ -11,27 +11,33 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late Future<List<dynamic>> _futurePhotos;
-  List photoList = [];
+  List<dynamic> photoList = [];
   final ScrollController _scrollController = ScrollController();
 
-  ApiService apiService = ApiService(); 
+  ApiService apiService = ApiService();
+  int page = 1; 
 
   @override
   void initState() {
     super.initState();
-    var page = 1;
-    _futurePhotos = apiService.fetchPhotos(page: page);
+    
+    _fetchPhotos();
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
-        page++;
-        setState(() {
-          _futurePhotos = apiService.fetchPhotos(page: page);
-        });
-
-      }
+          _fetchPhotos();
+        }
     });
+  }
+
+  Future<void> _fetchPhotos() async {
+    final newPhotos = await apiService.fetchPhotos(page: page);
+    if (newPhotos.isNotEmpty) {
+       setState(() {
+         photoList.addAll(newPhotos);
+         page++;
+       });
+    }
   }
 
   @override
@@ -40,23 +46,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Center(child: Text("Wallpapers"))
       ),
-      body: FutureBuilder<List<dynamic>>(
-        future: _futurePhotos,
-        builder: (context, asyncSnapshot) {
-          if (asyncSnapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          else if (asyncSnapshot.hasError) {
-            return Center(child: Text("Error: ${asyncSnapshot.error}"));
-          }
-
-          else if (asyncSnapshot.hasData) {
-              photoList.addAll(asyncSnapshot.data!);
-            if (photoList.isEmpty) {
-              return const Center(child: Text("No photos found"));
-            }
-          
-            return GridView.builder(
+      body: GridView.builder(
               controller: _scrollController,
               itemCount: photoList.length,
               padding: EdgeInsets.all(20),
@@ -71,13 +61,7 @@ class _HomePageState extends State<HomePage> {
                 final imageUrl = photo['src']['medium'];
                 return ImageCard(uri: imageUrl);
               },
-              );
-          }
-          else {
-            return const Center(child: Text("No data found."));
-          }
-        }
-      )
+              )
     );
   }
 }

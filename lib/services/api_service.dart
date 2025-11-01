@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  Future<List<dynamic>> fetchPhotos({int page = 1}) async {
+  Future<List<dynamic>> fetchPhotos({required int page}) async {
     const apiKey = String.fromEnvironment("API_KEY");
     if (apiKey.isEmpty) {
       throw Exception("API_KEY not found");
