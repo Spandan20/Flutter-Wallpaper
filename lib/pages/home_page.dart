@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/services/api_service.dart';
 import 'package:flutter_application_1/widgets/image_card.dart';
@@ -11,6 +12,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late Future<List<dynamic>> _futurePhotos;
+  List photoList = [];
   final ScrollController _scrollController = ScrollController();
 
   ApiService apiService = ApiService(); 
@@ -24,9 +26,8 @@ class _HomePageState extends State<HomePage> {
     _scrollController.addListener(() {
       if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
         page++;
-        Future<List<dynamic>> newPhotos =  apiService.fetchPhotos(page: page);
         setState(() {
-          _futurePhotos = newPhotos;
+          _futurePhotos = apiService.fetchPhotos(page: page);
         });
 
       }
@@ -50,7 +51,7 @@ class _HomePageState extends State<HomePage> {
           }
 
           else if (asyncSnapshot.hasData) {
-             final photoList = asyncSnapshot.data!;
+              photoList.addAll(asyncSnapshot.data!);
             if (photoList.isEmpty) {
               return const Center(child: Text("No photos found"));
             }
