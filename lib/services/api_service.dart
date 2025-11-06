@@ -8,7 +8,7 @@ class ApiService {
     if (apiKey.isEmpty) {
       throw Exception("API_KEY not found");
     }
-    const baseUri = "https://api.pexels.com/v1/curated?per_page=80";
+    const baseUri = "https://api.pexels.com/v1/curated?per_page=10";
     var uri = "$baseUri&page=$page";
     try {
       final response = await http.get(

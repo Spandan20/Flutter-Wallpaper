@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ImageCard extends StatelessWidget {
-  final uri;
+  final String uri;
   const ImageCard({super.key, required this.uri});
  
   @override
